@@ -1,0 +1,82 @@
+version: "3"
+services:
+  db:
+    image: postgres:11
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWD}
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6378:6378'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - cache:/data
+
+  webapp:
+    build: .
+    working_dir: /ace
+    command: bash -c "python3 manage.py runserver 0:8058"
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWD: ${DB_PASSWD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+    depends_on:
+      - cache
+      - db
+    volumes:
+      - .:/ace
+      - virtualenvs:/usr/local/lib/python3.6/dist-packages
+    ports:
+      - 8058:8058
+
+  celery_worker:
+    build: .
+    working_dir: /ace
+    command: celery -A aceapp worker --loglevel=info
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWD: ${DB_PASSWD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+    depends_on:
+      - cache
+      - db
+      - webapp
+    volumes:
+      - .:/ace
+      - virtualenvs:/usr/local/lib/python3.6/dist-packages
+
+  celery_beat:
+    build: .
+    working_dir: /ace
+    command: celery -A aceapp beat --loglevel=info
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWD: ${DB_PASSWD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+    depends_on:
+      - cache
+      - db
+      - webapp
+    volumes:
+      - .:/ace
+      - virtualenvs:/usr/local/lib/python3.6/dist-packages
+
+volumes:
+  pg_volume:
+  virtualenvs:
+  cache:
+    driver: local

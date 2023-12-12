@@ -1,0 +1,17 @@
+FROM ubuntu
+RUN apt-get update 
+RUN apt-get upgrade -y
+RUN apt-get install libpython3.10-stdlib -y
+
+# Install dependencies required for psycopg2 python package
+RUN apt-get update && apt-get install -y \
+    python3-pip
+RUN pip3 install --upgrade pip
+RUN python3 -m pip install --upgrade setuptools
+RUN apt-get install -y --no-install-recommends build-essential gcc
+RUN apt install python3-psycopg2 -y
+RUN mkdir -p /ace
+COPY ./requirements.txt /ace/
+WORKDIR /ace/
+RUN mkdir -p logs
+RUN pip3 install -r requirements.txt

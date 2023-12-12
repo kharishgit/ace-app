@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Verification Successful - ACE Education Center</title>
+</head>
+<body>
+	<h1>Congratulations {{ name }}!</h1>
+	<p style="font-weight: 600;">Your course verification is successful.</p>
+
+	<table >
+		<thead style="background-color: rgba(49, 48, 48, 0.511);color: black;">
+			<tr >
+				<th style="border: 1px solid black;">Category</th>
+				<th style="border: 1px solid black;">Level</th>
+				<th style="border: 1px solid black;">Level-wise Salary</th>
+			</tr>
+		</thead>
+		<tbody style="border: 1px solid black;background-color: white;">
+			{% for row in table_data %}
+			<tr >
+				<td style="border: 1px solid black;text-align: center;">{{ row.0 }}</td>
+				<td style="border: 1px solid black;text-align: center;">{{ row.1 }}</td>
+				<td style="border: 1px solid black;text-align: center;">{{ row.2 }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	<p>For login in to your account : <a href="{{ login_url }}" style="text-decoration: none;">Click Here</a> </p>
+
+	<p>Best regards,<br>ACE Education Center</p>
+</body>
+</html>
